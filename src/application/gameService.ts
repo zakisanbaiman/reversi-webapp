@@ -1,14 +1,8 @@
-import { GameGateway } from "../dataaccess/gameGateway";
-import { DARK } from "./constants";
-import { INITIAL_BOARD } from "./constants";
 import { connectMySQL } from "../dataaccess/connection";
-import { SquareGateway } from "../dataaccess/squareGateway";
-import { TurnGateway } from "../dataaccess/turnGateway";
 import { TurnRepository } from "../domain/turn/turnRepository";
 import { firstTurn } from "../domain/turn/turn";
 import { GameRepository } from "../domain/game/gameRepository";
 import { Game } from "../domain/game/game";
-const gameGateway = new GameGateway();
 
 const turnRepository = new TurnRepository()
 const gameRepository = new GameRepository()

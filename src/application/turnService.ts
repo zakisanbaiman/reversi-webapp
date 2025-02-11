@@ -1,11 +1,9 @@
 import { connectMySQL } from '../dataaccess/connection'
-import { GameGateway } from '../dataaccess/gameGateway'
 import { toDisc } from '../domain/turn/disc';
 import { Point } from '../domain/turn/point';
 import { TurnRepository } from '../domain/turn/turnRepository'
 import { GameRepository } from '../domain/game/gameRepository';
 
-const gameGateway = new GameGateway()
 const gameRepository = new GameRepository()
 
 class FindLatestGameTurnByTurnCountOutput {
@@ -43,6 +41,9 @@ export class TurnService {
       if (!game) {
         throw new Error('Game not found')
       }
+      if (!game.id) {
+        throw new Error('game.id is not exist')
+      }
 
       const turnRepository = new TurnRepository()
       const turn = await turnRepository.findByGameIdAndTurnCount(conn, game.id, turnCount)
@@ -65,14 +66,17 @@ export class TurnService {
       await conn.beginTransaction()
 
       // 1つ前のターンを取得する
-      const gameRecord = await gameGateway.findLatest(conn)
-      if (!gameRecord) {
-        throw new Error('Latest game not found')
+      const game = await gameRepository.findLatest(conn)
+      if (!game) {
+        throw new Error('Game not found')
+      }
+      if (!game.id) {
+        throw new Error('game.id is not exist')
       }
 
       const previousTurnCount = turnCount - 1
       const turnRepository = new TurnRepository()
-      const previousTurn = await turnRepository.findByGameIdAndTurnCount(conn, gameRecord.id, previousTurnCount)
+      const previousTurn = await turnRepository.findByGameIdAndTurnCount(conn, game.id, previousTurnCount)
 
       // 石を打つ
       const newTurn = previousTurn.placeNext(toDisc(disc), new Point(x, y))
